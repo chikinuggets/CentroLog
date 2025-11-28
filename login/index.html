@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CentroLog Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&display=swap">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body class="login-body">
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-content">
+            <img src="../assets/logoapp.png" alt="CentroLog logo" class="splash-logo">
+            <h1 class="splash-title">CentroLog</h1>
+            <p class="splash-tagline">Track. Fulfill. Flourish.</p>
+        </div>
+    </div>
+
+    <div id="loginScreen" class="login-screen login-hidden">
+        <div class="login-card">
+            <div class="login-logo">
+                <img src="../assets/logoapp.png" alt="CentroLog logo">
+            </div>
+            <div class="login-heading">
+                <h1>CentroLog</h1>
+                <p>Sales Operations Suite</p>
+            </div>
+            <form id="loginForm" class="auth-form active" novalidate>
+                <div class="form-group">
+                    <label for="loginEmail">Email address</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="Enter email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter password" required>
+                </div>
+                <button type="submit" id="loginButton" class="btn-primary full-width">Sign In</button>
+                <div class="form-links">
+                    <button type="button" class="link-btn" data-target="forgotForm">Forgot password?</button>
+                    <button type="button" class="link-btn" data-target="signupForm">Create account</button>
+                </div>
+            </form>
+
+            <form id="forgotForm" class="auth-form" novalidate>
+                <div class="auth-header">
+                    <button type="button" class="link-btn" data-target="loginForm">&larr; Back</button>
+                    <span>Reset password</span>
+                </div>
+                <div class="form-group">
+                    <label for="forgotEmail">Email address</label>
+                    <input type="email" id="forgotEmail" class="form-input" placeholder="Enter email" required>
+                </div>
+                <button type="submit" class="btn-primary full-width">Send Reset Link</button>
+                <div class="form-links">
+                    <button type="button" class="link-btn" data-target="loginForm">Back to login</button>
+                    <button type="button" class="link-btn" data-target="signupForm">Create account</button>
+                </div>
+            </form>
+
+            <form id="signupForm" class="auth-form" novalidate>
+                <div class="auth-header">
+                    <button type="button" class="link-btn" data-target="loginForm">&larr; Back</button>
+                    <span>Create account</span>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="signupFirstName">First name</label>
+                        <input type="text" id="signupFirstName" class="form-input" placeholder="First name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupLastName">Last name</label>
+                        <input type="text" id="signupLastName" class="form-input" placeholder="Last name" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email address</label>
+                    <input type="email" id="signupEmail" class="form-input" placeholder="Enter email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" class="form-input" placeholder="Enter password" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupConfirmPassword">Confirm password</label>
+                    <input type="password" id="signupConfirmPassword" class="form-input" placeholder="Confirm password" required>
+                </div>
+                <button type="submit" class="btn-primary full-width">Create Account</button>
+                <div class="form-links">
+                    <button type="button" class="link-btn" data-target="loginForm">Already have an account? Login</button>
+                    <button type="button" class="link-btn" data-target="forgotForm">Forgot password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="loginErrorModal" class="modal" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Login Failed</h2>
+                <button class="modal-close" data-close-modal>&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>The email or password you entered is incorrect. Please try again.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" data-close-modal>Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>
+

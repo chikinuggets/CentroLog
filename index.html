@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Order Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&display=swap">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-content">
+            <img src="assets/logoapp.png" alt="Sales Order Tracker logo" class="splash-logo">
+            <h1 class="splash-title">CentroLog</h1>
+            <p class="splash-tagline">Track. Fulfill. Flourish.</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="app-container app-hidden">
+        <!-- Home Dashboard Page -->
+        <div id="homePage" class="page active">
+            <div class="page-header">
+                <h1>Dashboard</h1>
+            </div>
+            <div class="page-content">
+                <!-- Metrics Cards -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon" aria-hidden="true"><i class="fa-solid fa-sack-dollar"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-label">Today's Sales</div>
+                            <div class="metric-value" id="todaySales">₱0.00</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon" aria-hidden="true"><i class="fa-solid fa-box-open"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-label">Total Orders</div>
+                            <div class="metric-value" id="totalOrders">0</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon" aria-hidden="true"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-label">Pending Orders</div>
+                            <div class="metric-value" id="pendingOrders">0</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="metric-info">
+                            <div class="metric-label">Low Stock Alerts</div>
+                            <div class="metric-value" id="lowStockAlerts">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Charts -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div>
+                                <h2>Sales Overview</h2>
+                                <p>Performance for the last 6 months</p>
+                            </div>
+                            <div class="chart-top-product">
+                                <span class="label">Top Product</span>
+                                <span class="value" id="topProductValue">—</span>
+                            </div>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="salesTrendChart" aria-label="Monthly sales line chart" role="img"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div>
+                                <h2>Top Selling Products</h2>
+                                <p>Best performers this month</p>
+                            </div>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="topProductsChart" aria-label="Top products bar chart" role="img"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Track Sales Page -->
+        <div id="trackSalesPage" class="page">
+            <div class="page-header">
+                <h1>Track Sales</h1>
+            </div>
+            <div class="page-content">
+                <!-- Search and Filter -->
+                <div class="filter-section">
+                    <input type="text" id="salesSearchInput" class="search-input" placeholder="Search by Order ID or Customer...">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" onclick="filterSales('all')">All</button>
+                        <button class="filter-btn" onclick="filterSales('today')">Today</button>
+                        <button class="filter-btn" onclick="filterSales('week')">This Week</button>
+                        <button class="filter-btn" onclick="filterSales('month')">This Month</button>
+                    </div>
+                </div>
+
+                <!-- Sales Summary -->
+                <div class="sales-summary">
+                    <div class="summary-item">
+                        <div class="summary-label">Total Sales</div>
+                        <div class="summary-value" id="totalSalesAmount">₱0.00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Total Orders</div>
+                        <div class="summary-value" id="totalSalesOrders">0</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Average Order</div>
+                        <div class="summary-value" id="averageOrderValue">₱0.00</div>
+                    </div>
+                </div>
+
+                <!-- Sales List -->
+                <div class="sales-list" id="salesList">
+                    <!-- Sales items will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Page -->
+        <div id="inventoryPage" class="page">
+            <div class="page-header">
+                <h1>Inventory</h1>
+                <button class="btn-primary" onclick="showAddProductModal()">Add Product</button>
+            </div>
+            <div class="page-content">
+                <!-- Search -->
+                <div class="search-section">
+                    <input type="text" id="inventorySearchInput" class="search-input" placeholder="Search products...">
+                    <select aria-label="Filter inventory" id="inventoryFilterSelect" class="filter-select" onchange="filterInventory()">
+                        <option value="all">All Status</option>
+                        <option value="inStock">In Stock</option>
+                        <option value="lowStock">Low Stock</option>
+                        <option value="outOfStock">Out of Stock</option>
+                    </select>
+                </div>
+
+                <!-- Low Stock Alert Banner -->
+                <div class="alert-banner hidden" id="lowStockBanner">
+                    <span aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                    <span>Low stock items detected!</span>
+                </div>
+
+                <!-- Inventory List -->
+                <div class="inventory-list" id="inventoryList">
+                    <!-- Inventory items will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Page -->
+        <div id="ordersPage" class="page">
+            <div class="page-header">
+                <h1>Orders</h1>
+            </div>
+            <div class="page-content">
+                <!-- Search and Filter -->
+                <div class="filter-section">
+                    <input type="text" id="ordersSearchInput" class="search-input" placeholder="Search by Order ID or Customer...">
+                    <select aria-label="Filter orders" id="ordersFilterSelect" class="filter-select" onchange="filterOrders()">
+                        <option value="all">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+
+                <!-- Orders List -->
+                <div class="orders-list" id="ordersList">
+                    <!-- Orders will be dynamically inserted here -->
+                </div>
+
+                <!-- Floating Add Button -->
+                <button class="fab" id="addOrderBtn" onclick="showAddOrderModal()">
+                    <span aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Settings Page -->
+        <div id="profilePage" class="page">
+            <div class="page-header">
+                <h1>Profile Settings</h1>
+            </div>
+            <div class="page-content">
+                <!-- User Profile Section -->
+                <div class="profile-section">
+                    <div class="profile-avatar">
+                        <div class="avatar-circle" aria-hidden="true"><i class="fa-solid fa-user"></i></div>
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="profileName">John Doe</div>
+                        <div class="profile-email" id="profileEmail">john.doe@example.com</div>
+                        <div class="profile-role" id="profileRole">Sales Manager</div>
+                    </div>
+                    <button class="btn-secondary" onclick="showEditProfileModal()">Edit Profile</button>
+                </div>
+
+                <!-- Settings Section -->
+                <div class="settings-section">
+                    <h2>Settings</h2>
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <span aria-hidden="true"><i class="fa-solid fa-bell"></i></span>
+                            <span>Notifications</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notificationsToggle" checked aria-label="Enable notifications">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <span aria-hidden="true"><i class="fa-solid fa-sliders"></i></span>
+                            <span>Stock Threshold</span>
+                        </div>
+                        <input aria-label="Stock threshold" type="number" id="stockThresholdInput" class="settings-input" value="10" min="1">
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-label">
+                            <span aria-hidden="true"><i class="fa-solid fa-coins"></i></span>
+                            <span>Currency</span>
+                        </div>
+                        <select aria-label="Currency" id="currencySelect" class="settings-select">
+                            <option value="PHP">PHP (₱)</option>
+                            <option value="USD">USD ($)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- App Information -->
+                <div class="app-info-section">
+                    <div class="info-item">
+                        <span>Version</span>
+                        <span>1.0.0</span>
+                    </div>
+                    <div class="info-item">
+                        <span>About</span>
+                        <span>Sales Order Tracker</span>
+                    </div>
+                    <button class="btn-danger" onclick="handleLogout()">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-page="homePage" onclick="navigateToPage('homePage')">
+                <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
+                <span class="nav-label">Home</span>
+            </button>
+            <button class="nav-item" data-page="trackSalesPage" onclick="navigateToPage('trackSalesPage')">
+                <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-chart-line"></i></span>
+                <span class="nav-label">Track Sales</span>
+            </button>
+            <button class="nav-item" data-page="inventoryPage" onclick="navigateToPage('inventoryPage')">
+                <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-boxes-stacked"></i></span>
+                <span class="nav-label">Inventory</span>
+            </button>
+            <button class="nav-item" data-page="ordersPage" onclick="navigateToPage('ordersPage')">
+                <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-receipt"></i></span>
+                <span class="nav-label">Orders</span>
+            </button>
+            <button class="nav-item" data-page="profilePage" onclick="navigateToPage('profilePage')">
+                <span class="nav-icon" aria-hidden="true"><i class="fa-solid fa-user"></i></span>
+                <span class="nav-label">Profile</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Add Order Modal -->
+    <div id="addOrderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Order</h2>
+                <button class="modal-close" onclick="closeModal('addOrderModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="orderCustomerName">Customer Name</label>
+                    <input type="text" id="orderCustomerName" class="form-input" placeholder="Enter customer name" aria-label="Customer name">
+                </div>
+                <div class="form-group">
+                    <label>Select Products</label>
+                    <div id="orderProductsList" class="products-selection" role="group" aria-label="Product selection">
+                        <!-- Products will be dynamically inserted here -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="orderDate">Order Date</label>
+                    <input type="date" id="orderDate" class="form-input" aria-label="Order date">
+                </div>
+                <div class="form-group">
+                    <label for="orderStatus">Status</label>
+                    <select id="orderStatus" class="form-input" aria-label="Order status">
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="orderNotes">Notes</label>
+                    <textarea id="orderNotes" class="form-input" rows="3" placeholder="Additional notes..." aria-label="Order notes"></textarea>
+                </div>
+                <div class="order-total">
+                    <strong>Total: <span id="orderTotalAmount">₱0.00</span></strong>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('addOrderModal')">Cancel</button>
+                <button class="btn-primary" onclick="saveOrder()">Save Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Product</h2>
+                <button class="modal-close" onclick="closeModal('addProductModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="productApplianceType">Appliance Type</label>
+                    <select id="productApplianceType" class="form-input" onchange="updateBrandOptions()" aria-label="Appliance type">
+                        <option value="">Select appliance</option>
+                        <option value="TV">TV</option>
+                        <option value="Speaker">Speaker</option>
+                        <option value="Electric Fan">Electric Fan</option>
+                        <option value="Food Processor">Food Processor</option>
+                        <option value="Blender">Blender</option>
+                        <option value="Washing Machine">Washing Machine</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="productBrand">Brand</label>
+                    <select id="productBrand" class="form-input" aria-label="Product brand">
+                        <option value="">Select brand</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="productName">Product Name</label>
+                    <input type="text" id="productName" class="form-input" placeholder="Enter product name" aria-label="Product name">
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Unit Price</label>
+                    <input type="number" id="productPrice" class="form-input" placeholder="0.00" step="0.01" min="0" aria-label="Unit price">
+                </div>
+                <div class="form-group">
+                    <label for="productQuantity">Quantity in Stock</label>
+                    <input type="number" id="productQuantity" class="form-input" placeholder="0" min="0" aria-label="Quantity in stock">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('addProductModal')">Cancel</button>
+                <button class="btn-primary" onclick="saveProduct()">Save Product</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Product</h2>
+                <button class="modal-close" onclick="closeModal('editProductModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editProductName">Product Name</label>
+                    <input type="text" id="editProductName" class="form-input" aria-label="Product name">
+                </div>
+                <div class="form-group">
+                    <label for="editProductPrice">Unit Price</label>
+                    <input type="number" id="editProductPrice" class="form-input" step="0.01" min="0" aria-label="Unit price">
+                </div>
+                <div class="form-group">
+                    <label for="editProductQuantity">Quantity in Stock</label>
+                    <input type="number" id="editProductQuantity" class="form-input" min="0" aria-label="Quantity in stock">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('editProductModal')">Cancel</button>
+                <button class="btn-primary" onclick="updateProduct()">Update Product</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="modal-close" onclick="closeModal('editProfileModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editProfileName">Name</label>
+                    <input type="text" id="editProfileName" class="form-input" aria-label="Name">
+                </div>
+                <div class="form-group">
+                    <label for="editProfileEmail">Email</label>
+                    <input type="email" id="editProfileEmail" class="form-input" aria-label="Email">
+                </div>
+                <div class="form-group">
+                    <label for="editProfileRole">Role</label>
+                    <input type="text" id="editProfileRole" class="form-input" aria-label="Role">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('editProfileModal')">Cancel</button>
+                <button class="btn-primary" onclick="updateProfile()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Order Details Modal -->
+    <div id="viewOrderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Order Details</h2>
+                <button class="modal-close" onclick="closeModal('viewOrderModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="viewOrderDetails">
+                <!-- Order details will be dynamically inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('viewOrderModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+</body>
+</html>
