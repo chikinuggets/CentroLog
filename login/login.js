@@ -58,14 +58,15 @@ document.addEventListener('DOMContentLoaded', () => {
             loginButton.textContent = 'Signing In...';
 
             setTimeout(() => {
-                const isValid = email === authConfig.email && password === authConfig.password;
-                if (isValid) {
+                // Accept any email/password combination (just check they're not empty)
+                if (email && password) {
                     sessionStorage.setItem('isAuthenticated', 'true');
                     loginButton.textContent = 'Redirecting...';
                     window.location.href = '../index.html';
                 } else {
-                    emailInput.classList.add('input-error');
-                    passwordInput.classList.add('input-error');
+                    // Only show error if fields are empty
+                    if (!email) emailInput.classList.add('input-error');
+                    if (!password) passwordInput.classList.add('input-error');
                     loginButton.disabled = false;
                     loginButton.textContent = 'Sign In';
                     openModal('loginErrorModal');
